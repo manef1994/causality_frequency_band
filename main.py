@@ -21,6 +21,125 @@ from statsmodels.tsa.stattools import grangercausalitytests
 import warnings
 warnings.filterwarnings("ignore")
 
+# =====================================================================================================================
+def read_R(path):
+
+    with open(path + "frequency-AlphaEEG T4.txt", 'r') as file1:
+        alpha = [float(i) for line in file1 for i in line.split('\n') if i.strip()]
+
+    with open(path + "frequency-BetaEEG T4.txt", 'r') as file1:
+        beta = [float(i) for line in file1 for i in line.split('\n') if i.strip()]
+
+    with open(path + "frequency-DeltaEEG T4.txt", 'r') as file1:
+        delta = [float(i) for line in file1 for i in line.split('\n') if i.strip()]
+
+    with open(path + "frequency-SigmaEEG T4.txt", 'r') as file1:
+        sigma = [float(i) for line in file1 for i in line.split('\n') if i.strip()]
+
+    with open(path + "frequency-ThetaEEG T4.txt", 'r') as file1:
+        theta = [float(i) for line in file1 for i in line.split('\n') if i.strip()]
+
+    return delta, theta, alpha, sigma, beta
+
+def read_R_1(path):
+
+    with open(path + "frequency-AlphaEEG T6.txt", 'r') as file1:
+        alpha = [float(i) for line in file1 for i in line.split('\n') if i.strip()]
+
+    with open(path + "frequency-BetaEEG 6.txt", 'r') as file1:
+        beta = [float(i) for line in file1 for i in line.split('\n') if i.strip()]
+
+    with open(path + "frequency-DeltaEEG T6.txt", 'r') as file1:
+        delta = [float(i) for line in file1 for i in line.split('\n') if i.strip()]
+
+    with open(path + "frequency-SigmaEEG T6.txt", 'r') as file1:
+        sigma = [float(i) for line in file1 for i in line.split('\n') if i.strip()]
+
+    with open(path + "frequency-ThetaEEG T6.txt", 'r') as file1:
+        theta = [float(i) for line in file1 for i in line.split('\n') if i.strip()]
+
+    return delta, theta, alpha, sigma, beta
+
+def read_L(path):
+
+    with open(path + "frequency-AlphaEEG T3.txt", 'r') as file1:
+        alpha = [float(i) for line in file1 for i in line.split('\n') if i.strip()]
+
+    with open(path + "frequency-BetaEEG T3.txt", 'r') as file1:
+        beta = [float(i) for line in file1 for i in line.split('\n') if i.strip()]
+
+    with open(path + "frequency-DeltaEEG T3.txt", 'r') as file1:
+        delta = [float(i) for line in file1 for i in line.split('\n') if i.strip()]
+
+    with open(path + "frequency-SigmaEEG T3.txt", 'r') as file1:
+        sigma = [float(i) for line in file1 for i in line.split('\n') if i.strip()]
+
+    with open(path + "frequency-ThetaEEG T3.txt", 'r') as file1:
+        theta = [float(i) for line in file1 for i in line.split('\n') if i.strip()]
+
+    return delta, theta, alpha, sigma, beta
+
+def read_L_1(path):
+
+    with open(path + "frequency-AlphaEEG T5.txt", 'r') as file1:
+        alpha = [float(i) for line in file1 for i in line.split('\n') if i.strip()]
+
+    with open(path + "frequency-BetaEEG T5.txt", 'r') as file1:
+        beta = [float(i) for line in file1 for i in line.split('\n') if i.strip()]
+
+    with open(path + "frequency-DeltaEEG T5.txt", 'r') as file1:
+        delta = [float(i) for line in file1 for i in line.split('\n') if i.strip()]
+
+    with open(path + "frequency-SigmaEEG T5.txt", 'r') as file1:
+        sigma = [float(i) for line in file1 for i in line.split('\n') if i.strip()]
+
+    with open(path + "frequency-ThetaEEG T5.txt", 'r') as file1:
+        theta = [float(i) for line in file1 for i in line.split('\n') if i.strip()]
+
+    return delta, theta, alpha, sigma, beta
+
+def read_ecg(path):
+
+    with open(path + "frequency-HF.txt", 'r') as file1:
+        HF = [float(i) for line in file1 for i in line.split('\n') if i.strip()]
+
+    with open(path + "frequency-LF.txt", 'r') as file1:
+        LF = [float(i) for line in file1 for i in line.split('\n') if i.strip()]
+
+    with open(path + "frequency-ratio.txt", 'r') as file1:
+        Ratio = [float(i) for line in file1 for i in line.split('\n') if i.strip()]
+
+    return LF, HF, Ratio
+
+def signal_preparation(LF, HF, Ratio, Delta, Theta, Alpha, Sigma, Beta):
+
+    # print("starting stationarity tests")
+
+    LF = stat(LF)
+    HF = stat(HF)
+    Ratio = stat(Ratio)
+
+    Delta = stat(Delta)
+    Theta = stat(Theta)
+    Alpha = stat(Alpha)
+    Sigma = stat(Sigma)
+    Beta = stat(Beta)
+
+    arrayx = []
+    arrayx.append(LF); arrayx.append(HF); arrayx.append(Ratio); arrayx.append(Delta); arrayx.append( Theta); arrayx.append(Alpha); arrayx.append(Sigma); arrayx.append(Beta)
+
+    # == cvreating the Data frame
+    d = pd.DataFrame(arrayx)
+    d1 = d.transpose()
+
+    d1.columns = ["LF", "HF", "Ratio", "Delta", "Theta", "Alpha", "Sigma", "Beta"]
+
+    elect = ["LF", "HF", "Ratio", "Delta", "Theta", "Alpha", "Sigma", "Beta"]
+    for i in range(len(elect)):
+        d1[elect[i]] = d1[elect[i]].replace(np.nan, 0)
+
+    return d1
+
 def adf_test(timeseries):
     # print("Results of Dickey-Fuller Test:")
     dftest = adfuller(timeseries, autolag="AIC")
@@ -39,327 +158,176 @@ def adf_test(timeseries):
     # print(dfoutput)
 
     return dfoutput["p-value"]
-def read(path, elec, pre_ictal, end):
 
-    edf = read_raw_edf(path, preload=False, stim_channel=None, verbose=False)
-    xx = edf.ch_names
-    index = xx.index(elec)
-    fs = edf.info['sfreq']
-    fs = int(fs)
-    signal_input = edf[index]
-    signal = signal_input[0]
-    signal_input = signal[0]
-
-    signal_input = signal_input[pre_ictal:end]
-
-    return signal_input
 def stat(array):
-
     dftest = adfuller(array, autolag="AIC")
 
     if (dftest[1] > 0.05):
-
         # print("is not stationary")
         array = np.diff(array)
         stat(array)
 
-    # print("lenght of the result", len(array))
     return array
-def stat_signal(signal, wind):
-    start = 0
-    end = wind * fs
-    output = []
 
-    while (True):
-        # print("start computing")
+def causality(arr, elec1, elec2, res):
 
-        sig = signal[start:end]
+    arr = arr[[elec1, elec2]]
+    xc = len(arr[elec1]) - len(arr[elec2])
+    # print("lenght eqials to\t", xc)
 
-
-        si = stat(sig)
-
-        # print("lenght of si", len(si))
-
-        output = np.append(output, si)
-
-        start = start + (wind * fs)
-        end = end + (wind * fs)
-
-        # print("how many minute left", ((len(signal) - end) /60/200))
-
-        # if (((len(signal) - end) /60/200) == 0):
-        if (end > len(signal)):
-            break
-
-    return output
-def causal_relation(array, wind, elec1, elec2):
-
-    start = 0
-    end = wind * fs
-    output = []
-
-    while (True):
-
-        sig = array[start:end]
-
-        # print("computing the lag order")
-
-        model = VAR(sig)
-        x = model.select_order(maxlags=50)
-        selected_order = x.aic
-
-        # print("Granger causality computing")
-
-        gc_res = grangercausalitytests(sig[[elec1, elec2]], [int(selected_order)], verbose=False)
-
-        pp = list(gc_res.keys())[0]
-        xx = gc_res[pp]
-        yy = xx[0]; zz = yy["ssr_ftest"]
-
-        output.append(zz[1])
-
-        start = start + (wind * fs)
-        end = end + (wind * fs)
-
-        if (end > len(array)):
-
-            break
-
-    return output
-def signal_preparation(EEG, ECG, wind, electrod, electrode):
-
-    print("starting stationarity tests")
-    EEG_s = stat_signal(EEG, wind)
-    ECG_s = stat_signal(ECG, wind)
-
-    arrayx = []
-    arrayx.append(EEG_s)
-    arrayx.append(ECG_s)
-
-    # == cvreating the Data frame
-    d = pd.DataFrame(arrayx)
-    d1 = d.transpose()
-    d1.columns = [electrod, electrode]
-
-    d1[electrod] = d1[electrod].replace(np.nan, 0)
-    d1[electrode] = d1[electrode].replace(np.nan, 0)
-
-    return d1
-def elmenet_count(cc):
-
-    elm = sum(1 for e in cc if e <= 0.05)
-    per = (elm / len(cc)) * 100
-    # print("elmenet_count T6 for EEG --> ECG\t", per)
-
-    return per
-
-def do (file_path, pre_ictal, end, wind, ecg, eeg, eeg1):
-
-
-    # == reading the electrode
-
-    ECGR = read(file_path, ecg, pre_ictal, end)
-    signal = ECGR
-    # ===============================================
-    # == working on T3
-    EEG_T3 = read(file_path, eeg, pre_ictal, end)
-
-    d1 = signal_preparation(EEG_T3, signal, wind, eeg, ecg)
-
-    cc = causal_relation(d1, wind, ecg, eeg)
-    print("elmenet_count " + eeg + " for EEG --> ECG\t", elmenet_count(cc))
-
-    cc = 0
-    # d1 = d1[[ecg, eeg]]
-    cc = causal_relation(d1, wind, eeg, ecg)
-    print("elmenet_count " + eeg + " for ECG --> EEG\t", elmenet_count(cc))
-
-    # ===============================================
-    # == working on T5
-    EEG_T5 = read(file_path, eeg1, pre_ictal, end)
-
-    d1 = signal_preparation(EEG_T5, signal, wind, eeg1, ecg)
-
-    cc = causal_relation(d1, wind, ecg, eeg1)
-    print("elmenet_count " + eeg1 + " for EEG --> ECG\t", elmenet_count(cc))
-
-    cc = causal_relation(d1, wind, eeg1, ecg)
-    print("elmenet_count " + eeg1 + " for ECG --> EEG\t", elmenet_count(cc))
-
-    # ===========================================================
-    # == reading the electrode
-    d1 = signal_preparation(EEG_T3, EEG_T5, wind, eeg, eeg1)
-
-    cc = causal_relation(d1, wind, eeg, eeg1)
-    print("elmenet_count " + eeg + " --> " + eeg1 + "\t", elmenet_count(cc))
-
-    cc = causal_relation(d1, wind, eeg1, eeg)
-    print("elmenet_count" + eeg1 + " --> " + eeg + "\t", elmenet_count(cc))
-
-    return True
-def do_mod (file_path, pre_ictal, end, wind, ecg, eeg, eeg1):
-
-    # == reading the electrode
-
-    ECGR = read(file_path, ecg, pre_ictal, end)
-    signal = ECGR
-    # ===============================================
-    # == working on T3
-
-    EEG_T3 = read(file_path, eeg, pre_ictal, end)
-
-    # d1 = signal_preparation(EEG_T3, signal, wind, eeg, ecg)
-    #
-    # cc = causal_relation(d1, wind, ecg, eeg)
-    # print("elmenet_count " + eeg + " --> " + ecg + "\t", elmenet_count(cc))
-
-    # cc = causal_relation(d1, wind, eeg1, eeg)
-    # print("elmenet_count" + eeg1 + " --> " + eeg + "\t", elmenet_count(cc))
-
-    # ===============================================
-    # == working on T5
-    EEG_T5 = read(file_path, eeg1, pre_ictal, end)
-    #
-    # # d1 = signal_preparation(EEG_T5, signal, wind, eeg1, ecg)
-    # #
-    # # cc = causal_relation(d1, wind, ecg, eeg1)
-    # # print("elmenet_count " + eeg1 + " for EEG --> ECG\t", elmenet_count(cc))
-    # #
-    # # cc = causal_relation(d1, wind, eeg1, ecg)
-    # # print("elmenet_count " + eeg1 + " for ECG --> EEG\t", elmenet_count(cc))
-    #
-    # # ===========================================================
-    # # == reading the electrode
-    d1 = signal_preparation(EEG_T3, EEG_T5, wind, eeg, eeg1)
-
-    cc = causal_relation(d1, wind, eeg, eeg1)
-    print("elmenet_count " + eeg + " --> " + eeg1 + "\t", elmenet_count(cc))
-
-    cc = causal_relation(d1, wind, eeg1, eeg)
-    print("elmenet_count" + eeg1 + " --> " + eeg + "\t", elmenet_count(cc))
-
-    return cc
-
-def causality(arr, elec1, elec2):
-
-    direct = []
     model = VAR(arr)
-    x = model.select_order(maxlags=50)
+    x = model.select_order(maxlags=100)
     selected_order = x.aic
 
-    print("EEG on ECG ")
-    for i in range(elec2):
 
-        print("relation causality of" + elec1+" on " + elec2[i])
+    # print("EEG on ECG ")
 
-        gc_res = grangercausalitytests(arr[[elec1, elec2[i]]], [int(selected_order)], verbose=False)
-        pp = list(gc_res.keys())[0]
-        xx = gc_res[pp]
-        yy = xx[0];
-        zz = yy["ssr_ftest"]
+    gc_res = grangercausalitytests(arr[[elec1, elec2]], [int(selected_order)], verbose=False)
+    pp = list(gc_res.keys())[0]
+    xx = gc_res[pp]
+    yy = xx[0];
+    zz = yy["ssr_ftest"]
+    res.at[elec2, elec1] = zz[1]
+    # print(" the causal relation of electrode\t" + elec2 + "\t-->\t" + elec1 + "\t", zz[1])
 
-        direct.append(zz[1])
 
-    print("ECG on EEG")
-
-    inverse = []
-    for i in range(elec2):
-
-        print("relation causality of" + elec2[i] + " on " + elec1)
-        gc_res = grangercausalitytests(arr[[elec2[i]], elec1], [int(selected_order)], verbose=False)
-        pp = list(gc_res.keys())[0]
-        xx = gc_res[pp]
-        yy = xx[0];
-        zz = yy["ssr_ftest"]
-
-        inverse.append(zz[1])
-
-    return direct, inverse
-
+    gc_res = grangercausalitytests(arr[[elec2, elec1]], [int(selected_order)], verbose=False)
+    pp = list(gc_res.keys())[0]
+    xx = gc_res[pp]
+    yy = xx[0];
+    zz = yy["ssr_ftest"]
+    res.at[elec1, elec2] = zz[1]
+    # print(" the causal relation of electrode\t" + elec1 + "\t-->\t" + elec2 + "\t", zz[1])
+    # print("")
 
 from time import monotonic
 
 start_time = monotonic()
-# something
 
-# == reading the electrode
-# file_path = "E:\\data\\doggi\\KHEDHIRI.edf"
+file = "/home/ftay/Desktop/causality/features/pre-ictal/"
+ID = "PN06-2"
 
-# == Patient 00
-fs = 512
+file = file+ID+"/"
 
-"We start buy reading the features files "
+# ==============================================================
+"In this part we compute the granger causality between EEG and ECG features in the Pre-ictal period"
+# ==============================================================
 
-# = reading the features files.
+print("working on electrode T3 pre-ictal")
+# == reading EEG signals
+LF, HF, Ratio = read_ecg(file)
 
+# == reading EEG signals
+# Delta, Theta, Alpha, Sigma, Beta= read_R(file)
+Delta, Theta, Alpha, Sigma, Beta = read_L(file)
+
+# == dataframe preparation
+d1 = signal_preparation(LF, HF, Ratio, Delta, Theta, Alpha, Sigma, Beta)
+
+# == electrodes
+EEG = ["Delta", "Theta", "Alpha", "Sigma", "Beta"]
+ECG = ["LF", "HF", "Ratio"]
+
+# == granger causality application
+"causality relation betwwen the EEG features and the LF feature"
+
+index = ["LF", "HF", "Ratio", "Delta", "Theta", "Alpha", "Sigma", "Beta"]
+df_T3 = pd.DataFrame(index = index, columns=index)
+
+# result_df = result_df.columns = ["LF", "HF", "Ratio", "Delta", "Theta", "Alpha", "Sigma", "Beta"]
+# result_df = result_df.index = ["LF", "HF", "Ratio", "Delta", "Theta", "Alpha", "Sigma", "Beta"]
+
+
+for i in range (int(len(ECG))):
+    print("working on ECG feature\t"+ECG[i])
+    for j in range(int(len(EEG))):
+
+        # print("working on ECG feature\t" + EEG[j])
+        result = causality(d1, ECG[i], EEG[j], df_T3)
+
+# =================================================
+print("working on electrode T5 pre-ictal")
+
+df_T5 = pd.DataFrame(index = index, columns=index)
+
+# == reading EEG signals
+# Delta, Theta, Alpha, Sigma, Beta= read_R_1(file)
+Delta, Theta, Alpha, Sigma, Beta = read_L_1(file)
+
+# == dataframe preparation
+d1 = signal_preparation(LF, HF, Ratio, Delta, Theta, Alpha, Sigma, Beta)
+
+# == granger causality application
+
+for i in range (int(len(ECG))):
+    print("working on ECG feature\t"+ECG[i])
+    for j in range (int(len(EEG))):
+
+        # print("working on ECG feature\t" + EEG[j])
+        result = causality(d1, ECG[i], EEG[j], df_T5)
+
+df_T3 = df_T3.fillna(0)
+df_T3 = df_T3.astype(np.float32)
+
+df_T5 = df_T5.replace(np.nan,0)
+df_T5 = df_T5.astype(np.float32)
+
+df_T3.to_csv("/home/ftay/Desktop/causality/causality csv/"+ID+"-T3.csv", sep=',', index=False, encoding='utf-8')
+df_T5.to_csv("/home/ftay/Desktop/causality/causality csv/"+ID+"-T5csv", sep=',', index=False, encoding='utf-8')
+
+# ==============================================================
+# "In this part we compute the granger causality between EEG and ECG features in the Inter-ictal period"
+# # ==============================================================
 # print("###############################################################")
-# file = "/home/ftay/Downloads/siena-scalp-eeg-database-1.0.0/PN10/"
+# print("working on inter-ictal period")
 #
-# elec_ecg = "2"
-# elec = "EEG Fp1"
-# elec_2 = "EEG F3"
+# file = "/home/ftay/Desktop/causality/features/inter-ictal/"
+# file = file+ID+"/"
+
 #
-# ID = "PN10-4.5.6.edf"
-# file_path = file+ID
-# # == Pre-ictal period
-# end = (fs * 60 * 60 * 0) + (fs * 60 * 38) + (29 * fs)
-# pre_ictal = (fs * 60 * 60 * 0) + (fs * 60 * 0) + (0 * fs)
+# # ==============================================================
+# "In this part we compute the granger causality between EEG and ECG features in the Pre-ictal period"
+# # ==============================================================
 #
-# wind = 4
-# print("window size equals to\t", wind)
-# xx = do(file_path, pre_ictal, end, wind, elec_ecg, elec, elec_2)
+# # == reading EEG signals
+# LF, HF, Ratio = read_ecg(file)
 #
-# wind = 8
-# print("window size equals to\t", wind)
-# xx = do(file_path, pre_ictal, end, wind, elec_ecg, elec, elec_2)
+# # == reading EEG signals
+# # Delta, Theta, Alpha, Sigma, Beta= read_R(file)
+# Delta, Theta, Alpha, Sigma, Beta = read_L(file)
 #
-# wind = 30
-# print("window size equals to\t", wind)
-# xx = do(file_path, pre_ictal, end, wind, elec_ecg, elec, elec_2)
-
-print("###############################################################")
-file = "/home/ftay/Downloads/siena-scalp-eeg-database-1.0.0/PN10/"
-
-elec_ecg = "2"
-elec = "EEG F3"
-elec_2 = "EEG F7"
-
-ID = "PN10-4.5.6.edf"
-file_path = file+ID
-# == Pre-ictal period
-end = (fs * 60 * 60 * 0) + (fs * 60 * 38) + (29 * fs)
-pre_ictal = (fs * 60 * 60 * 0) + (fs * 60 * 0) + (0 * fs)
-
-wind = 4
-print("window size equals to\t", wind)
-xx= do_mod(file_path, pre_ictal, end, wind, elec_ecg, elec, elec_2)
-
-wind = 8
-print("window size equals to\t", wind)
-xx = do_mod(file_path, pre_ictal, end, wind, elec_ecg, elec, elec_2)
-
-wind = 30
-print("window size equals to\t", wind)
-xx = do_mod(file_path, pre_ictal, end, wind, elec_ecg, elec, elec_2)
+# # == dataframe preparation
+# d1 = signal_preparation(LF, HF, Ratio, Delta, Theta, Alpha, Sigma, Beta)
 #
-print("###############################################################")
-
-# print("#######################################")
-# print("Inter-ictal period")
-# end = (fs * 60 * 60 * 0) + (fs * 60 * 30) + (0 * fs)
-# pre_ictal = (fs * 60 * 60 * 0) + (fs * 60 * 0) + (0 * fs)
+# # == electrodes
+# EEG = ["Delta", "Theta", "Alpha", "Sigma", "Beta"]
+# ECG = ["LF", "HF", "Ratio"]
 #
-# wind = 4
-# print("window size equals to\t", wind)
-# xx, yy, cc = do_mod(file_path, pre_ictal, end, wind, elec_ecg, elec, elec_2)
-
-# wind = 8
-# print("window size equals to\t", wind)
-# xx = do_mod(file_path, pre_ictal, end, wind, elec_ecg, elec, elec_2)
+# # == granger causality application
+# for i in range (int(len(ECG))):
+#     print("working on ECG feature\t"+ECG[i])
+#     for j in range (int(len(EEG))):
 #
-# wind = 30
-# print("window size equals to\t", wind)
-# xx = do_mod(file_path, pre_ictal, end, wind, elec_ecg, elec, elec_2)
+#         print("working on ECG feature\t" + EEG[j])
+#         result = causality(d1, ECG[i], EEG[j], result_df)
+#
+#
+# print("working on electrode T5 pre-ictal")
+#
+# # == reading EEG signals
+# # Delta, Theta, Alpha, Sigma, Beta= read_R_1(file)
+# Delta, Theta, Alpha, Sigma, Beta = read_L_1(file)
+#
+# # == dataframe preparation
+# d1 = signal_preparation(LF, HF, Ratio, Delta, Theta, Alpha, Sigma, Beta)
+#
+# # == granger causality application
+#
+# for i in range (int(len(ECG))):
+#     print("working on ECG feature\t" + ECG[i])
+#     for j in range (int(len(EEG))):
+#         print("working on ECG feature\t" + EEG[j])
+#         result = causality(d1, ECG[i], EEG[j], result_df)
 
 # fig, axs = plt.subplots(3, 1)
 # axs[0].plot(xx, label="EEG T3 signal")
@@ -386,7 +354,22 @@ print("###############################################################")
 #
 # plt.show()
 
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
 
+df_T3.fillna(0)
+df_T3 = df_T3.astype(np.float64)
+
+# sns.set_theme(style="ticks", palette="pastel")
+
+ax = plt.axes()
+sns.heatmap(df_T3, annot=True, vmin=0, vmax=0.05)
+sns.set_style("darkgrid")
+ax.set(xlabel='', ylabel='y-axis label')
+ax.set_title('causality relation heatmap', fontsize = 20)
+
+plt.show()
 
 print(f"Run time {monotonic() - start_time} seconds")
 
