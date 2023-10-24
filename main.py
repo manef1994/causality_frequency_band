@@ -46,7 +46,7 @@ def read_R_1(path):
     with open(path + "frequency-AlphaEEG T6.txt", 'r') as file1:
         alpha = [float(i) for line in file1 for i in line.split('\n') if i.strip()]
 
-    with open(path + "frequency-BetaEEG 6.txt", 'r') as file1:
+    with open(path + "frequency-BetaEEG T6.txt", 'r') as file1:
         beta = [float(i) for line in file1 for i in line.split('\n') if i.strip()]
 
     with open(path + "frequency-DeltaEEG T6.txt", 'r') as file1:
@@ -176,8 +176,9 @@ def causality(arr, elec1, elec2, res):
     # print("lenght eqials to\t", xc)
 
     model = VAR(arr)
-    x = model.select_order(maxlags=100)
+    x = model.select_order(maxlags=70)
     selected_order = x.aic
+    print("the lag selected is\t", selected_order)
 
 
     # print("EEG on ECG ")
@@ -198,7 +199,7 @@ def causality(arr, elec1, elec2, res):
     zz = yy["ssr_ftest"]
     res.at[elec1, elec2] = zz[1]
     # print(" the causal relation of electrode\t" + elec1 + "\t-->\t" + elec2 + "\t", zz[1])
-    # print("")
+    print("")
 
 from time import monotonic
 
@@ -213,17 +214,6 @@ file = file+ID+"/"
 "In this part we compute the granger causality between EEG and ECG features in the Pre-ictal period"
 # ==============================================================
 
-print("working on electrode T3 pre-ictal")
-# == reading EEG signals
-LF, HF, Ratio = read_ecg(file)
-
-# == reading EEG signals
-# Delta, Theta, Alpha, Sigma, Beta= read_R(file)
-Delta, Theta, Alpha, Sigma, Beta = read_L(file)
-
-# == dataframe preparation
-d1 = signal_preparation(LF, HF, Ratio, Delta, Theta, Alpha, Sigma, Beta)
-
 # == electrodes
 EEG = ["Delta", "Theta", "Alpha", "Sigma", "Beta"]
 ECG = ["LF", "HF", "Ratio"]
@@ -233,13 +223,24 @@ ECG = ["LF", "HF", "Ratio"]
 
 index = ["LF", "HF", "Ratio", "Delta", "Theta", "Alpha", "Sigma", "Beta"]
 df_T3 = pd.DataFrame(index = index, columns=index)
+df_T5 = pd.DataFrame(index = index, columns=index)
 
-# result_df = result_df.columns = ["LF", "HF", "Ratio", "Delta", "Theta", "Alpha", "Sigma", "Beta"]
-# result_df = result_df.index = ["LF", "HF", "Ratio", "Delta", "Theta", "Alpha", "Sigma", "Beta"]
+print("working on electrode T3 pre-ictal")
+# == reading EEG signals
+LF, HF, Ratio = read_ecg(file)
+
+
+
+# == reading EEG signals
+# Delta, Theta, Alpha, Sigma, Beta= read_R(file)
+Delta, Theta, Alpha, Sigma, Beta = read_L(file)
+
+# == dataframe preparation
+d1 = signal_preparation(LF, HF, Ratio, Delta, Theta, Alpha, Sigma, Beta)
 
 
 for i in range (int(len(ECG))):
-    print("working on ECG feature\t"+ECG[i])
+    # print("working on ECG feature\t"+ECG[i])
     for j in range(int(len(EEG))):
 
         # print("working on ECG feature\t" + EEG[j])
@@ -247,8 +248,6 @@ for i in range (int(len(ECG))):
 
 # =================================================
 print("working on electrode T5 pre-ictal")
-
-df_T5 = pd.DataFrame(index = index, columns=index)
 
 # == reading EEG signals
 # Delta, Theta, Alpha, Sigma, Beta= read_R_1(file)
@@ -266,110 +265,127 @@ for i in range (int(len(ECG))):
         # print("working on ECG feature\t" + EEG[j])
         result = causality(d1, ECG[i], EEG[j], df_T5)
 
-df_T3 = df_T3.fillna(0)
-df_T3 = df_T3.astype(np.float32)
+# df_T3 = df_T3.fillna(0)
+# df_T3 = df_T3.astype(np.float32)
+#
+# df_T5 = df_T5.replace(np.nan,0)
+# df_T5 = df_T5.astype(np.float32)
 
-df_T5 = df_T5.replace(np.nan,0)
-df_T5 = df_T5.astype(np.float32)
-
-df_T3.to_csv("/home/ftay/Desktop/causality/causality csv/"+ID+"-T3.csv", sep=',', index=False, encoding='utf-8')
-df_T5.to_csv("/home/ftay/Desktop/causality/causality csv/"+ID+"-T5csv", sep=',', index=False, encoding='utf-8')
+# df_T3.to_csv("/home/ftay/Desktop/causality/causality csv/"+ID+"-T3.csv", sep=',', index=False, encoding='utf-8')
+# df_T5.to_csv("/home/ftay/Desktop/causality/causality csv/"+ID+"-T5csv", sep=',', index=False, encoding='utf-8')
 
 # ==============================================================
 # "In this part we compute the granger causality between EEG and ECG features in the Inter-ictal period"
-# # ==============================================================
-# print("###############################################################")
-# print("working on inter-ictal period")
-#
-# file = "/home/ftay/Desktop/causality/features/inter-ictal/"
-# file = file+ID+"/"
+# # # ==============================================================
+print("###############################################################")
+print("working on inter-ictal period")
 
-#
-# # ==============================================================
-# "In this part we compute the granger causality between EEG and ECG features in the Pre-ictal period"
-# # ==============================================================
-#
-# # == reading EEG signals
-# LF, HF, Ratio = read_ecg(file)
-#
-# # == reading EEG signals
-# # Delta, Theta, Alpha, Sigma, Beta= read_R(file)
-# Delta, Theta, Alpha, Sigma, Beta = read_L(file)
-#
-# # == dataframe preparation
-# d1 = signal_preparation(LF, HF, Ratio, Delta, Theta, Alpha, Sigma, Beta)
-#
-# # == electrodes
-# EEG = ["Delta", "Theta", "Alpha", "Sigma", "Beta"]
-# ECG = ["LF", "HF", "Ratio"]
-#
-# # == granger causality application
-# for i in range (int(len(ECG))):
-#     print("working on ECG feature\t"+ECG[i])
-#     for j in range (int(len(EEG))):
-#
-#         print("working on ECG feature\t" + EEG[j])
-#         result = causality(d1, ECG[i], EEG[j], result_df)
-#
-#
-# print("working on electrode T5 pre-ictal")
-#
-# # == reading EEG signals
-# # Delta, Theta, Alpha, Sigma, Beta= read_R_1(file)
-# Delta, Theta, Alpha, Sigma, Beta = read_L_1(file)
-#
-# # == dataframe preparation
-# d1 = signal_preparation(LF, HF, Ratio, Delta, Theta, Alpha, Sigma, Beta)
-#
-# # == granger causality application
-#
-# for i in range (int(len(ECG))):
-#     print("working on ECG feature\t" + ECG[i])
-#     for j in range (int(len(EEG))):
-#         print("working on ECG feature\t" + EEG[j])
-#         result = causality(d1, ECG[i], EEG[j], result_df)
 
-# fig, axs = plt.subplots(3, 1)
-# axs[0].plot(xx, label="EEG T3 signal")
-# axs[1].plot(yy, label="ECG signal")
-# axs[2].plot(cc, label="Granger causality test result")
-#
-# axs[0].set_xlabel('progress per sample')
-# axs[0].set_ylabel('Amplitude')
-#
-# axs[1].set_xlabel('progress per sample')
-# axs[1].set_ylabel('Amplitude')
-#
-# axs[2].set_xlabel('progress in time per 4s')
-# axs[2].set_ylabel('Amplitude')
-#
-#
-# axs[0].grid(True)
-# axs[1].grid(True)
-# axs[2].grid(True)
-#
-# axs[0].legend()
-# axs[1].legend()
-# axs[2].legend()
-#
-# plt.show()
+# # == reading EEG signals
+file = "/home/ftay/Desktop/causality/features/inter-ictal/"
+file = file+ID+"/"
+
+LF, HF, Ratio = read_ecg(file)
+
+# == reading EEG signals
+# Delta, Theta, Alpha, Sigma, Beta= read_R(file)
+Delta, Theta, Alpha, Sigma, Beta = read_L(file)
+
+df_T3_inter = pd.DataFrame(index = index, columns=index)
+df_T5_inter = pd.DataFrame(index = index, columns=index)
+
+# == dataframe preparation
+d1 = signal_preparation(LF, HF, Ratio, Delta, Theta, Alpha, Sigma, Beta)
+
+# == electrodes
+EEG = ["Delta", "Theta", "Alpha", "Sigma", "Beta"]
+ECG = ["LF", "HF", "Ratio"]
+
+# == granger causality application
+for i in range (int(len(ECG))):
+    print("working on ECG feature\t"+ECG[i])
+    for j in range (int(len(EEG))):
+
+        print("working on ECG feature\t" + EEG[j])
+        result = causality(d1, ECG[i], EEG[j], df_T3_inter)
+
+
+print("working on electrode T5 pre-ictal")
+
+# == reading EEG signals
+# Delta, Theta, Alpha, Sigma, Beta= read_R_1(file)
+Delta, Theta, Alpha, Sigma, Beta = read_L_1(file)
+
+# == dataframe preparation
+d1 = signal_preparation(LF, HF, Ratio, Delta, Theta, Alpha, Sigma, Beta)
+
+# == granger causality application
+
+for i in range (int(len(ECG))):
+    print("working on ECG feature\t" + ECG[i])
+    for j in range (int(len(EEG))):
+        print("working on ECG feature\t" + EEG[j])
+        result = causality(d1, ECG[i], EEG[j], df_T5_inter)
+
+
 
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-df_T3.fillna(0)
-df_T3 = df_T3.astype(np.float64)
+# df_T3.fillna(0)
+# df_T3 = df_T3.astype(np.float64)
 
 # sns.set_theme(style="ticks", palette="pastel")
 
+df_T3 = df_T3.astype(np.float64)
 ax = plt.axes()
 sns.heatmap(df_T3, annot=True, vmin=0, vmax=0.05)
 sns.set_style("darkgrid")
 ax.set(xlabel='', ylabel='y-axis label')
-ax.set_title('causality relation heatmap', fontsize = 20)
+ax.set_title("Pre-ictal causality relation heatmap of electrode T3 of patient "+ID, fontsize = 20)
+
+# plt.show()
+
+# df_T5.fillna(0)
+# df_T5 = df_T5.astype(np.float64)
+
+# sns.set_theme(style="ticks", palette="pastel")
+
+df_T5 = df_T5.astype(np.float64)
+ax = plt.axes()
+sns.heatmap(df_T5, annot=True, vmin=0, vmax=0.05)
+sns.set_style("darkgrid")
+ax.set(xlabel='', ylabel='y-axis label')
+ax.set_title("Pre-ictal causality relation heatmap of electrode T5 of patient "+ID, fontsize = 20)
 
 plt.show()
+
+# =========================
+"ploting the inter-ictal results"
+# =========================
+df_T3_inter = df_T3_inter.astype(np.float64)
+ax = plt.axes()
+sns.heatmap(df_T3_inter, annot=True, vmin=0, vmax=0.05)
+sns.set_style("darkgrid")
+ax.set(xlabel='', ylabel='y-axis label')
+ax.set_title("Inter-ictal causality relation heatmap of electrode T3 of patient "+ID, fontsize = 20)
+
+plt.show()
+
+# df_T5.fillna(0)
+# df_T5 = df_T5.astype(np.float64)
+
+
+df_T5_inter = df_T5_inter.astype(np.float64)
+ax = plt.axes()
+sns.heatmap(df_T5_inter, annot=True, vmin=0, vmax=0.05)
+sns.set_style("darkgrid")
+ax.set(xlabel='', ylabel='y-axis label')
+ax.set_title("Inter-ictal causality relation heatmap of electrode T5 of patient "+ID, fontsize = 20)
+
+plt.show()
+
 
 print(f"Run time {monotonic() - start_time} seconds")
 
